@@ -4,12 +4,27 @@ namespace App\Controller;
 
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
-class MainController
+class MainController extends AbstractController
 {
     #[Route('/')]
-    public function homepage()
+    public function homepage(): Response
     {
-        return new Response ('Welcome to the homepage!');
+        $myCars = [
+            'name' => 'BMW',
+            'model' => 'X5',
+            'year' => 2021,
+            'color' => 'black',
+            'price' => 100000,
+            
+        ];
+        $ProofOfConceptCount = 403;
+        return $this -> render('main/homepage.html.twig', 
+        [
+            'ProofOfConceptCount' => $ProofOfConceptCount,
+            'myCars' => $myCars,
+        ]
+    );
     }
 }

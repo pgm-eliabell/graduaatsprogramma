@@ -1,0 +1,21 @@
+<h1>this is the main/homepage.html.twig template</h1>
+<div>
+    browse through concept count : {{ProofOfConceptCount}} {# this is a variable that is passed from the controller #}
+
+    {% if ProofOfConceptCount > 400 %}  {# same but for JS #}
+        <p>There are more than 400 concepts</p>
+    {% else %}
+        <p>There are less than 400 concepts</p>
+    {% endif %}
+    <div>
+        <h1>
+            my cars 
+            <table>
+                <tr>
+                    <th>name:</th>
+                    <td>{{myCars.name}}</td>
+                </tr>
+            </table>
+        </h1>
+    </div>
+</div> 
