@@ -14,5 +14,7 @@ symfony packs that have been previously installed already setup the link for you
 
 
 symfony console doctrine:schema:validate
+
+
 symfony console make migration
 symfony console doctrine:migrations:list

@@ -1,3 +1,4 @@
+
 ###> symfony/framework-bundle ###
 /.env.local
 /.env.local.php
@@ -6,12 +7,4 @@
 /public/bundles/
 /var/
 /vendor/
-
 ###< symfony/framework-bundle ###
-
-/node_modules/
-/backend/var/
-/frontend/var/
-/backend/vendor/
-/frontend/node_modules/
-/backend/node_modules/
