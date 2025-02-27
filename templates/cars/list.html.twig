@@ -1,0 +1,10 @@
+{% extends "main/homepage.html.twig" %}
+
+{% block body %}
+<h1>Cars List</h1>
+<ul>
+    {% for car in cars %}
+        <li>{{ car.name }}</li>
+    {% endfor %}
+</ul>
+{% endblock body %}
