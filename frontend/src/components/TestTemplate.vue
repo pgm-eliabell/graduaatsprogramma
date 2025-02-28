@@ -17,6 +17,7 @@
 </template>
 
 <script setup>
+// import axios from 'axios'
 import { ref, onMounted } from 'vue'
 import { useFetch } from '@vueuse/core'
 
@@ -27,7 +28,7 @@ const error = ref(null)
 onMounted(async () => {
   loading.value = true
   const { data, error: fetchError } = await useFetch('http://127.0.0.1:8001/api/cars').json()
-
+console.log(data.value)
   if (fetchError.value) {
     error.value = fetchError.value.message
   } else {

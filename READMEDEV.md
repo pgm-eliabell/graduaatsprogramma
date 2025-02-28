@@ -8,7 +8,7 @@ some usefull DB commands:
 composer require debug  
 composer require doctrine  
 docker compose up -d   
-symfony var:export --multiline  
+symfony var:export --multiline  --> shows your env data, you dont REALLY need your env. symfony does this for you. 
 
 symfony packs that have been previously installed already setup the link for you. 
 
@@ -18,3 +18,5 @@ symfony console doctrine:schema:validate
 
 symfony console make migration
 symfony console doctrine:migrations:list
+
+ymfony console cache:clear 
