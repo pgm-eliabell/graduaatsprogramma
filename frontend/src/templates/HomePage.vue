@@ -1,29 +1,23 @@
 <template>
   <div class="home-container">
-    <section class="hero">
-      <h2>Showcase Your Work. Connect. Inspire.</h2>
-      <p>Create and customize your portfolio, share your experiences, and engage with others.</p>
-      <router-link to="/create" class="cta-button">Start Building</router-link>
-    </section>
-
+    <HeroSection/>
     <FeaturedPortfolio />
     <PortfolioGrid/>
-
-    <!-- Latest Posts Section -->
-    <!-- Add your latest posts section here -->
   </div>
 </template>
 
 <script setup>
 import PortfolioGrid from '@/components/PortfolioGrid.vue';
 import FeaturedPortfolio from '@/components/FeaturedPortfolio.vue';
+import HeroSection from '@/components/HeroSection.vue';
 </script>
 
 <script>
 export default {
   components: {
     FeaturedPortfolio,
-    PortfolioGrid
+    PortfolioGrid,
+    HeroSection
   }
 };
 </script>
@@ -35,19 +29,5 @@ export default {
   margin: 0 auto;
   padding: 20px;
 }
-.hero {
-  text-align: center;
-  padding: 50px 20px;
-  background: #f4f4f4;
-  border-radius: 10px;
-}
-.cta-button {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 10px 20px;
-  background: #007bff;
-  color: white;
-  border-radius: 5px;
-  text-decoration: none;
-}
+
 </style>
