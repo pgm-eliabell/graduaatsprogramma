@@ -7,6 +7,7 @@
     </section>
 
     <FeaturedPortfolio />
+    <PortfolioGrid/>
 
     <!-- Latest Posts Section -->
     <!-- Add your latest posts section here -->
@@ -14,16 +15,19 @@
 </template>
 
 <script setup>
+import PortfolioGrid from '@/components/PortfolioGrid.vue';
 import FeaturedPortfolio from '@/components/FeaturedPortfolio.vue';
 </script>
 
 <script>
 export default {
   components: {
-    FeaturedPortfolio
+    FeaturedPortfolio,
+    PortfolioGrid
   }
 };
 </script>
+
 <style scoped>
 .home-container {
   font-family: Arial, sans-serif;

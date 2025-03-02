@@ -20,3 +20,11 @@ symfony console make migration
 symfony console doctrine:migrations:list
 
 ymfony console cache:clear 
+
+
+to make a migration, here are the full commands. 
+- symfony console make:entity 
+- symfony console make:migration
+- symfony console doctrine:migrations:list --> its to check your migrations set at the moment. 
+- symfony console doctrine:migrations:migrate -- note: it might try to migrate a migration youve made earlier, just move into a diffrent folder, i used a selfmade folder /migrations/finishedMigration/Yourmigration.php
+

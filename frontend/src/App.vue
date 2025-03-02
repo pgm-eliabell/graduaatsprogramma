@@ -1,7 +1,6 @@
 <template>
   <Navbar/>
   <TestTemplate/>
-  
   <router-view/>
 </template>
 <!-- <Hero title="Welcome to my Portfolio" description="This is a description of my portfolio"/>
@@ -12,7 +11,7 @@
 
 <script>
 // import HelloWorld from './components/HelloWorld.vue'
-import TestTemplate from './components/TestTemplate.vue'
+// import TestTemplate from './components/TestTemplate.vue'
 import Navbar from './components/Navbar.vue'
 // import About from './components/AboutPage.vue'
 // import Hero from './components/portfolioComponents/HeroSection.vue'
@@ -21,7 +20,7 @@ export default {
   name: 'App',
   components: {
     Navbar, 
-    TestTemplate
+    // TestTemplate
     // Hero,
     // About, 
   }

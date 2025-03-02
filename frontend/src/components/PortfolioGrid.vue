@@ -1,5 +1,5 @@
 <template>
-    <div class="portfolio-grid">
+    <div class="portfolio-grid bg-blue ">
       <h2>Uitgelichte Portfolio's</h2>
       <div class="grid">
         <div v-for="portfolio in portfolios" :key="portfolio.id" class="portfolio-card">
@@ -35,4 +35,8 @@
     width: 100%;
     height: auto;
   }
+  .bg-blue {
+    background-color: #0e5796;
+  }
+  
   </style>

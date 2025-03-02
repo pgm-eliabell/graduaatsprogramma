@@ -1,72 +1,73 @@
 <template>
-  <section class="featured-portfolios">
-    <h3>Featured Portfolios</h3>
-    <div class="grid-container">
+  <section class="featured-users">
+    <h3>Featured Users</h3>
+    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="error" class="error">{{ error }}</div>
+
+    <div v-if="featuredUsers.length" class="bento-grid">
+      <!-- Dynamically render each user in the bento grid layout -->
       <div
-        class="grid-item"
-        v-for="portfolio in paginatedPortfolios"
-        :key="portfolio.id"
+        v-for="(user, index) in featuredUsers"
+        :key="user.id"
+        :class="['grid-item', getGridClass(index)]"
       >
-        <router-link :to="`/portfolio/${portfolio.id}`">
-          <img :src="portfolio.image" :alt="portfolio.name" />
+        <router-link :to="`/user/${user.id}`">
+          <img :src="getImageUrl(user.profilePicture)" :alt="user.username" />
           <div class="overlay">
-            <h4>{{ portfolio.name }}</h4>
-            <span>View Portfolio</span>
+            <h4>{{ user.firstName }} {{ user.lastName }}</h4>
+            <span>View User</span>
           </div>
         </router-link>
       </div>
     </div>
-    <PaginationComponent
-      :totalItems="portfolios.length"
-      :itemsPerPage="itemsPerPage"
-      @page-changed="handlePageChange"
-    />
   </section>
 </template>
 
-<script>
-import PaginationComponent from './PaginationComponent.vue';
+<script setup>
+import { ref, onMounted } from 'vue';
+import { getUsers } from '../api/api.js'; 
 
-export default {
-  components: {
-    PaginationComponent
-  },
-  data() {
-    return {
-      portfolios: [
-        { id: 1, name: "John Doe", image: "https://meafoliobackendfolder.ddev.site/images/portfolioThumbnails/placeholder.jpg" },
-        { id: 2, name: "Jane Smith", image: "https://meafoliobackendfolder.ddev.site/images/portfolioThumbnails/placeholder.jpg" },
-        { id: 3, name: "Eliaz Bello Medrano", image: "https://meafoliobackendfolder.ddev.site/images/portfolioThumbnails/placeholder.jpg" }
-      ],
-      currentPage: 1,
-      itemsPerPage: 6
-    };
-  },
-  computed: {
-    paginatedPortfolios() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.portfolios.slice(start, end);
-    }
-  },
-  methods: {
-    handlePageChange(page) {
-      this.currentPage = page;
-    }
+const loading = ref(false);
+const featuredUsers = ref([]);
+const error = ref(null);
+
+onMounted(async () => {
+  loading.value = true;
+  try {
+    const users = await getUsers();
+    featuredUsers.value = users.slice(0, 4); // Display up to 4 users
+  } catch (err) {
+    error.value = err.message;
+  } finally {
+    loading.value = false;
   }
+});
+
+// Function to determine the grid class based on index
+const getGridClass = (index) => {
+  if (index === 0) return 'large';
+  if (index === 1 || index === 2) return 'small';
+  if (index === 3) return 'medium';
+  return '';
+};
+
+// Function to construct the image URL relative to the public directory
+const getImageUrl = (imagePath) => {
+  return `http://127.0.0.1:8001/uploads/profilePictures${imagePath}`;
 };
 </script>
 
 <style scoped>
-.featured-portfolios {
+.featured-users {
   margin-top: 40px;
-  background-color: green;
+  background-color: #f0f0f0;
   padding: 20px;
 }
 
-.grid-container {
+.bento-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: 2fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
   gap: 10px;
 }
 
@@ -74,6 +75,21 @@ export default {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
+}
+
+.large {
+  grid-column: span 2;
+  grid-row: span 2;
+}
+
+.small {
+  grid-column: span 1;
+  grid-row: span 1;
+}
+
+.medium {
+  grid-column: span 2;
+  grid-row: span 1;
 }
 
 .grid-item img {
@@ -101,5 +117,13 @@ export default {
 .overlay span {
   color: #ffd700;
   text-decoration: none;
+}
+
+.loading {
+  color: blue;
+}
+
+.error {
+  color: red;
 }
 </style>

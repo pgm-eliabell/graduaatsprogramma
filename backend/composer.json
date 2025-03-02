@@ -75,6 +75,7 @@
         }
     },
     "require-dev": {
+        "fzaninotto/faker": "^1.5",
         "symfony/debug-bundle": "7.2.*",
         "symfony/maker-bundle": "^1.62",
         "symfony/stopwatch": "7.2.*",
