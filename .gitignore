@@ -1,5 +1,9 @@
 ###> symfony/framework-bundle ###
+/.env
 /.env.local
+/.env.dev
+/.env.test
+/.env.prod
 /.env.local.php
 /.env.*.local
 /config/secrets/prod/prod.decrypt.private.php
@@ -15,3 +19,9 @@
 /backend/vendor/
 /frontend/node_modules/
 /backend/node_modules/
+/backend/.env/
+
+# Ignore .env file containing credentials, if you use .env
+# !!! NEVER USE .env IN PRODUCTION !!!
+.env
+

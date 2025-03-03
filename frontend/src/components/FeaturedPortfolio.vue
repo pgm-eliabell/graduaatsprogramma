@@ -37,7 +37,7 @@ const loading = ref(false);
 const featuredUsers = ref([]);
 const error = ref(null);
 const currentPage = ref(1);
-const usersPerPage = 9; // Number of users per page
+const usersPerPage = 9; 
 
 onMounted(async () => {
   loading.value = true;
@@ -88,7 +88,7 @@ const prevPage = () => {
 .featured-users {
   margin-top: 40px;
   padding: 20px;
-  background-color: #1e3a8a; /* Gentle dark blue background */
+  background-color: #1e3a8a; 
   color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -105,7 +105,7 @@ const prevPage = () => {
   position: relative;
   overflow: hidden;
   border-radius: 8px;
-  background: #2a5298; /* Slightly lighter blue for grid items */
+  background: #2a5298; 
   transition: transform 0.3s ease-in-out;
 }
 

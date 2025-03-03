@@ -7,7 +7,7 @@ if you have a error when first starting its usually the command "composer instal
 some usefull DB commands:
 composer require debug  
 composer require doctrine  
-docker compose up -d   
+docker compose up -d   --> starts your DB
 symfony var:export --multiline  --> shows your env data, you dont REALLY need your env. symfony does this for you. 
 
 symfony packs that have been previously installed already setup the link for you. 
@@ -27,4 +27,5 @@ to make a migration, here are the full commands.
 - symfony console make:migration
 - symfony console doctrine:migrations:list --> its to check your migrations set at the moment. 
 - symfony console doctrine:migrations:migrate -- note: it might try to migrate a migration youve made earlier, just move into a diffrent folder, i used a selfmade folder /migrations/finishedMigration/Yourmigration.php
+
 
