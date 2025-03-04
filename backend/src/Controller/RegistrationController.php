@@ -35,7 +35,7 @@ class RegistrationController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
-            // encode the plain password
+            // hasht password
             $user->setPassword(
                 $passwordHasher->hashPassword(
                     $user,
@@ -55,7 +55,7 @@ class RegistrationController extends AbstractController
                     ->htmlTemplate('registration/confirmation_email.html.twig')
             );
 
-            // authenticate the user after registration
+            // just an authentication
             return $userAuthenticator->authenticateUser(
                 $user,
                 $authenticator,
@@ -83,7 +83,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // validate email confirmation link, sets User::isVerified=true and persists
+        // validates email confirmation link, sets User::isVerified=true and goes on
         try {
             $this->emailVerifier->handleEmailConfirmation($request, $user);
         } catch (VerifyEmailExceptionInterface $exception) {
@@ -92,7 +92,7 @@ class RegistrationController extends AbstractController
             return $this->redirectToRoute('app_register');
         }
 
-        // @TODO Change the redirect on success and handle or remove the flash message in your templates
+        //still got to change this redirect to the right page
         $this->addFlash('success', 'Your email address has been verified.');
 
         return $this->redirectToRoute('app_register');
