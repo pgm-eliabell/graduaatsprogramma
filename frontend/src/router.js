@@ -7,6 +7,7 @@ import ContactPage from './templates/ContactPage.vue';
 import LoginPage from './templates/LoginPage.vue';
 import RegisterPage from './templates/RegisterPage.vue';
 import NotFoundPage from './templates/NotFoundPage.vue';
+import CreatePage from './templates/portolio/CreatePage.vue';
 
 const routes = [
   { path: '/', component: HomePage },
@@ -15,6 +16,7 @@ const routes = [
   { path: '/login', component: LoginPage},
   { path: '/register', component: RegisterPage},
   { path: '/:pathMatch(.*)*', component: NotFoundPage },
+  { path: '/create', component: CreatePage},
 ];
 
 const router = createRouter({

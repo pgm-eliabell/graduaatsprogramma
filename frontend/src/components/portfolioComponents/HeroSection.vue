@@ -2,6 +2,7 @@
     <section class="hero">
       <h1>{{ title }}</h1>
       <p>{{ description }}</p>
+      <p>this is the hero section </p>
     </section>
   </template>
   
