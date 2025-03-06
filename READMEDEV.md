@@ -1,7 +1,7 @@
 this is a file with commands to help you out and use good practices
 NOTE: Try to stay away from bin/console commands, instead try to use symfony console commands 
 symfony serve
-
+npm run watch ==> in case tailwind css does not work for you
 if you have a error when first starting its usually the command "composer install"
 
 some usefull DB commands:
