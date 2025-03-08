@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -17,6 +18,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
+
+    #[ORM\OneToOne(mappedBy: 'user', cascade: ['persist', 'remove'], targetEntity: Portfolios::class)]
+    private ?Portfolios $portfolios = null;
 
     #[ORM\Column(length: 255)]
     private ?string $username = null;
@@ -48,24 +52,22 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column]
     private bool $isVerified = false;
 
-    // Implement the methods required by UserInterface
+    // Required by UserInterface
     public function getRoles(): array
     {
-        return ['ROLE_USER']; // You can customize roles as needed
+        return ['ROLE_USER'];
     }
 
     public function eraseCredentials(): void
     {
-        // If you store any temporary, sensitive data on the user, clear it here
     }
 
     public function getUserIdentifier(): string
     {
-        return $this->email; // or $this->username, depending on your setup
+        return $this->email ?? '';
     }
 
-    // ... (other getters and setters)
-
+    // Getters / setters
     public function getId(): ?int
     {
         return $this->id;
@@ -79,7 +81,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUsername(string $username): static
     {
         $this->username = $username;
-
         return $this;
     }
 
@@ -91,7 +92,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setFirstName(string $firstName): static
     {
         $this->firstName = $firstName;
-
         return $this;
     }
 
@@ -103,7 +103,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setLastName(string $lastName): static
     {
         $this->lastName = $lastName;
-
         return $this;
     }
 
@@ -115,7 +114,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setEmail(string $email): static
     {
         $this->email = $email;
-
         return $this;
     }
 
@@ -127,7 +125,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setPassword(string $password): static
     {
         $this->password = $password;
-
         return $this;
     }
 
@@ -139,7 +136,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setProfilePicture(?string $profilePicture): static
     {
         $this->profilePicture = $profilePicture;
-
         return $this;
     }
 
@@ -151,7 +147,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setBio(?string $bio): static
     {
         $this->bio = $bio;
-
         return $this;
     }
 
@@ -163,7 +158,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(?\DateTimeImmutable $createdAt): static
     {
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
@@ -175,7 +169,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(?\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
-
         return $this;
     }
 
@@ -187,7 +180,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsVerified(bool $isVerified): static
     {
         $this->isVerified = $isVerified;
+        return $this;
+    }
 
+    public function getPortfolios(): ?Portfolios
+    {
+        return $this->portfolios;
+    }
+
+    public function setPortfolios(?Portfolios $portfolios): static
+    {
+        if ($portfolios === null && $this->portfolios !== null) {
+            $this->portfolios->setUser(null);
+        }
+        if ($portfolios !== null && $portfolios->getUser() !== $this) {
+            $portfolios->setUser($this);
+        }
+        $this->portfolios = $portfolios;
         return $this;
     }
 }

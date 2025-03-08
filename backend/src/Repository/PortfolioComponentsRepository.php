@@ -2,22 +2,22 @@
 
 namespace App\Repository;
 
-use App\Entity\Portfolios;
+use App\Entity\PortfolioComponents;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
- * @extends ServiceEntityRepository<Portfolios>
+ * @extends ServiceEntityRepository<PortfolioComponents>
  */
-class PortfoliosRepository extends ServiceEntityRepository
+class PortfolioComponentsRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
-        parent::__construct($registry, Portfolios::class);
+        parent::__construct($registry, PortfolioComponents::class);
     }
 
     //    /**
-    //     * @return Portfolios[] Returns an array of Portfolios objects
+    //     * @return PortfolioComponents[] Returns an array of PortfolioComponents objects
     //     */
     //    public function findByExampleField($value): array
     //    {
@@ -31,7 +31,7 @@ class PortfoliosRepository extends ServiceEntityRepository
     //        ;
     //    }
 
-    //    public function findOneBySomeField($value): ?Portfolios
+    //    public function findOneBySomeField($value): ?PortfolioComponents
     //    {
     //        return $this->createQueryBuilder('p')
     //            ->andWhere('p.exampleField = :val')

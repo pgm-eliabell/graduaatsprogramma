@@ -19,6 +19,16 @@ class UserRepository extends ServiceEntityRepository
     {
         return $this->findAll();
     }
+    public function findUserWithPortfolio($userId)
+    {
+        return $this->createQueryBuilder('u')
+            ->leftJoin('u.portfolios', 'p')
+            ->addSelect('p')
+            ->andWhere('u.id = :userId')
+            ->setParameter('userId', $userId)
+            ->getQuery()
+            ->getOneOrNullResult();
+    }
 
     //    /**
     //     * @return User[] Returns an array of User objects
