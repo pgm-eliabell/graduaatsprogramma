@@ -1,0 +1,10 @@
+html
+{% extends 'base.html.twig' %}
+{% block body %}
+  <div class="max-w-screen-xl mx-auto p-5">
+    <h1 class="text-3xl font-bold mb-6">{{ portfolio.user.username }}'s Portfolio</h1>
+    <p class="text-lg">{{ portfolio.professionTitle }}</p>
+    <p class="mb-4">{{ portfolio.description }}</p>
+    <!-- Add more details about the user's portfolio/components -->
+  </div>
+{% endblock %}

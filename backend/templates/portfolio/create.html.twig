@@ -1,0 +1,9 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+  <div id="create-portfolio-app" class="max-w-screen-xl mx-auto p-5">
+    <h1 class="text-3xl font-bold mb-6">Create Your Portfolio</h1>
+    <div {{ vue_component('CreatePortfolioPage', { 'name': 'helooya' }) }}>
+    </div>
+
+{% endblock %}
