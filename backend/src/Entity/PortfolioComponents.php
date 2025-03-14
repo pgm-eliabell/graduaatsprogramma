@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\UX\Turbo\Attribute\Broadcast;
 
 #[ORM\Entity(repositoryClass: PortfolioComponentsRepository::class)]
-#[Broadcast]
+// #[Broadcast]
 class PortfolioComponents
 {
     #[ORM\Id]

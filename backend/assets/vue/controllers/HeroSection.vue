@@ -31,17 +31,13 @@
 
       <label class="block mb-1">Description</label>
       <textarea
-        v-model="description"
-        rows="2"
-        class="w-full p-2 bg-gray-700 rounded"
-      ></textarea>
+  v-model="description"
+  rows="2"
+  class="w-full p-2 bg-gray-700 rounded"
+  style="resize: none;"
+></textarea>
 
-      <button
-        @click="saveHeroSection"
-        class="mt-4 px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-md"
-      >
-        Save
-      </button>
+
     </div>
 
     <label

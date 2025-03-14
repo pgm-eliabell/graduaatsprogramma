@@ -1,8 +1,21 @@
 <template>
   <div class="page-builder p-8 bg-gray-100 min-h-screen">
-    <h2 class="text-4xl font-bold mb-8 text-center text-gray-900">Craft Your Own Page</h2>
+    <h2 class="text-4xl font-bold mb-8 text-center text-gray-900">
+      Craft Your Own Page
+    </h2>
 
     <div class="blocks space-y-6">
+      <div class="flex items-center space-x-4"></div>
+      <label for="visibility" class="text-lg font-medium text-gray-700"
+        >private:</label
+      >
+      <input
+        id="visibility"
+        type="checkbox"
+        v-model="isVisible"
+        class="form-checkbox h-5 w-5 text-blue-600"
+      />
+
       <div
         v-for="(block, index) in blocks"
         :key="index"
@@ -37,7 +50,9 @@
       class="component-selector fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
     >
       <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-lg">
-        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Select a Component</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">
+          Select a Component
+        </h2>
         <ul class="space-y-3">
           <li v-for="(comp, name) in components" :key="name">
             <button
@@ -60,12 +75,14 @@ import ItemCard from "./ItemCard.vue";
 import SocialLinks from "./SocialLinks.vue";
 import SpotifyEmbed from "./SpotifyEmbed.vue";
 import VideoEmbed from "./VideoEmbed.vue";
+import Test from "./Test.vue";
 
 export default {
   name: "CreatePortfolioPage",
   data() {
     return {
-      blocks: [{ component: null }],
+      isVisible: false, 
+      blocks: [{ component: null }], 
       showComponentSelector: false,
       selectedBlockIndex: null,
       components: {
@@ -75,6 +92,7 @@ export default {
         SocialLinks,
         SpotifyEmbed,
         VideoEmbed,
+        Test,
       },
     };
   },
@@ -89,28 +107,37 @@ export default {
       this.blocks.push({ component: null });
     },
     saveAllComponents() {
-      // Gather data from each child
       const blocksPayload = this.blocks
-        .filter((b) => b.component)
+        .filter((b) => b.component) //filters out blocks without components
         .map((b, index) => {
           const child = this.$refs[`block_${index}`];
           return {
-            type: child.$options.name,       // e.g. "HeroSection"
-            content: child.getData?.() || {}, // each child implements getData()
+            type: child?.$options?.name || "we dont know this one.",
+            content: child?.getData?.() || {},
           };
         });
 
-      // Send to controller (adjust URL and structure as needed)
       fetch("/api/portfolios/save", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ blocks: blocksPayload }),
+        body: JSON.stringify({
+          blocks: blocksPayload,
+          layout_config: {}, 
+          visible: this.isVisible, 
+        }),
       })
-        .then((res) => {
-          if (!res.ok) throw new Error("Failed to save");
-          alert("All components saved!");
+        .then((resp) => {
+          if (!resp.ok) throw new Error("Failed to save");
+          return resp.json();
         })
-        .catch(console.error);
+        .then((data) => {
+          alert("All components saved!");
+          console.log("Saved response:", data);
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("Error saving components");
+        });
     },
   },
 };

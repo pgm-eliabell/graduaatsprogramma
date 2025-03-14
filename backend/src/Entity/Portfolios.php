@@ -12,7 +12,7 @@ use Symfony\UX\Turbo\Attribute\Broadcast;
 
 #[ORM\Entity(repositoryClass: PortfoliosRepository::class)]
 #[ORM\Table(name: "portfolios")]
-#[Broadcast]
+// #[Broadcast]
 class Portfolios
 {
     #[ORM\Id]
