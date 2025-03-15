@@ -107,38 +107,47 @@ export default {
       this.blocks.push({ component: null });
     },
     saveAllComponents() {
-      const blocksPayload = this.blocks
-        .filter((b) => b.component) //filters out blocks without components
-        .map((b, index) => {
-          const child = this.$refs[`block_${index}`];
-          return {
-            type: child?.$options?.name || "we dont know this one.",
-            content: child?.getData?.() || {},
-          };
-        });
+  const blocksPayload = this.blocks
+    .filter((b) => b.component)
+    .map((b, index) => {
+      // Possibly the Vue ref is an array, so get the first item
+      const child = this.$refs[`block_${index}`]?.[0];
+      if (child) {
+        console.log("Component name (for block " + index + "):", child.$options?.name);
+      }
+      return {
+        type: child?.$options?.name || "UnknownComponent",
+        content: child?.getData ? child.getData() : {}
+      };
+    });
 
-      fetch("/api/portfolios/save", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          blocks: blocksPayload,
-          layout_config: {}, 
-          visible: this.isVisible, 
-        }),
-      })
-        .then((resp) => {
-          if (!resp.ok) throw new Error("Failed to save");
-          return resp.json();
-        })
-        .then((data) => {
-          alert("All components saved!");
-          console.log("Saved response:", data);
-        })
-        .catch((error) => {
-          console.error(error);
-          alert("Error saving components");
-        });
-    },
+  const payload = {
+    blocks: blocksPayload,
+    layout_config: {},
+    visible: this.isVisible
+  };
+
+  console.log("Sending payload:", JSON.stringify(payload, null, 2)); // <== LOG THE FULL JSON
+
+  fetch("/api/portfolios/save", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  })
+  .then((resp) => {
+    if (!resp.ok) throw new Error("Failed to save");
+    return resp.json();
+  })
+  .then((data) => {
+    alert("All components saved!");
+    console.log("Saved response:", data);
+  })
+  .catch((error) => {
+    console.error(error);
+    alert("Error saving components");
+  });
+}
+
   },
 };
 </script>

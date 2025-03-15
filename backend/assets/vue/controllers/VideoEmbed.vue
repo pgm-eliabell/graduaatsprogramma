@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100 p-4 rounded shadow">
+  <div class="bg-gray-900 p-4 rounded shadow">
     <label class="block font-semibold mb-2">
       Embed Code
     </label>

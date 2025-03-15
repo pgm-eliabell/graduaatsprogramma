@@ -1,51 +1,73 @@
 <?php
+
 namespace App\Controller;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home')]
-    public function index(UserRepository $userRepository, Request $request): Response
+    /**
+     * Display the initial page with the first set of users.
+     */
+    #[Route('/', name: 'app_home', methods: ['GET'])]
+    public function index(UserRepository $userRepo): Response
     {
-        // Default values for pagination
-        $limit = 9; // Number of items per page
-        $currentPage = $request->query->getInt('page', 1); // Get the current page from the query parameters
+        // Load the first chunk of users (e.g., 9)
+        $limit = 9;
+        $offset = 0;
 
-        // Calculate the offset for the query
-        $offset = ($currentPage - 1) * $limit;
+        $users = $userRepo->findBy([], null, $limit, $offset);
+        $formattedUsers = $this->formatUsers($users);
 
-        // Fetch paginated users from the repository
-        $users = $userRepository->findBy([], null, $limit, $offset);
-        $totalUsers = $userRepository->count([]);
-        $totalPages = ceil($totalUsers / $limit);
+        // Renders 'homepage.html.twig', passing initial chunk of users and the limit
+        return $this->render('home/homepage.html.twig', [
+            'initialUsers' => $formattedUsers,
+            'limit' => $limit,
+        ]);
+    }
 
-        // Prepare the data for the template
+    /**
+     * API endpoint for loading more users (infinite scroll).
+     *
+     * Example call: GET /api/users?page=2&limit=9
+     */
+    #[Route('/api/users', name: 'api_users', methods: ['GET'])]
+    public function loadMoreUsers(UserRepository $userRepo, Request $request): JsonResponse
+    {
+        $limit = $request->query->getInt('limit', 9);
+        $page = $request->query->getInt('page', 2);
+
+        // Calculate offset based on page & limit
+        $offset = ($page - 1) * $limit;
+
+        $users = $userRepo->findBy([], null, $limit, $offset);
+        $formattedUsers = $this->formatUsers($users);
+
+        // Return JSON with the new set of users
+        return $this->json($formattedUsers);
+    }
+
+    /**
+     * Helper to convert User entities into arrays for twig/JSON.
+     */
+    private function formatUsers(array $users): array
+    {
         $data = [];
-        foreach ($users as $user) {
+        foreach ($users as $u) {
             $data[] = [
-                'id' => $user->getId(),
-                'username' => $user->getUsername(),
-                'firstName' => $user->getFirstName(),
-                'lastName' => $user->getLastName(),
-                'email' => $user->getEmail(),
-                'profilePicture' => $user->getProfilePicture(),
-                'bio' => $user->getBio(),
-                'createdAt' => $user->getCreatedAt(),
-                'updatedAt' => $user->getUpdatedAt(),
+                'id' => $u->getId(),
+                'username' => $u->getUsername(),
+                'profilePicture' => $u->getProfilePicture(),
+                // add more fields if you like
             ];
         }
 
-        // Render the template with paginated data
-        return $this->render('home/homepage.html.twig', [
-            'paginatedUsers' => $data,
-            'currentPage' => $currentPage,
-            'totalPages' => $totalPages,
-            'users' => $data,
-        ]);
+        return $data;
     }
 }
