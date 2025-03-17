@@ -30,10 +30,12 @@
             </div>
             <!-- Desktop nav links -->
             <div class="hidden md:flex space-x-4">
-                <a href="{{ path('app_home') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Home</a>
                 {% if app.user %}
-                    <a href="{{ path('user_profile', { id: app.user.id }) }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">{{ app.user.username }}</a>
-                    <a href="{{ path('app_logout') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Logout</a>
+                
+                <a href="{{ path('show_portfolio', { id: app.user.id }) }}">
+                    {{ app.user.username }}
+                  </a>
+                <a href="{{ path('app_logout') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Logout</a>
                 {% else %}
                     <a href="{{ path('app_login') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Login</a>
                     <a href="{{ path('app_register') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Register</a>
@@ -42,7 +44,6 @@
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 py-8">
         {% block body %}{% endblock %}
     </div>
 </body>

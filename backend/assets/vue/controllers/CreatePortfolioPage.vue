@@ -127,7 +127,7 @@ export default {
     visible: this.isVisible
   };
 
-  console.log("Sending payload:", JSON.stringify(payload, null, 2)); // <== LOG THE FULL JSON
+  console.log("Sending payload:", JSON.stringify(payload, null, 2)); // i'll have to delete this later
 
   fetch("/api/portfolios/save", {
     method: "POST",

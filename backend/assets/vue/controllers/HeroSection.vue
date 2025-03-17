@@ -86,18 +86,12 @@ export default {
       this.backgroundImagePreview = URL.createObjectURL(this.backgroundImageFile);
     },
 
-    /**
-     * This is the crucial method the parent calls via child.getData().
-     * We'll store everything in one object. 
-     * For small images, you can embed them as base64. 
-     * For large, see notes below.
-     */
+
     getData() {
       return {
         name: this.name,
         occupation: this.occupation,
         description: this.description,
-        // We store the images as "preview" data URLs for now:
         profileImage: this.profileImagePreview || null,
         backgroundImage: this.backgroundImagePreview || null,
       };

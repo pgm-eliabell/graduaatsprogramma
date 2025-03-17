@@ -1,6 +1,5 @@
 <template>
   <div class="bg-black text-white p-4 rounded">
-    <!-- Textarea for full Spotify embed code -->
     <label class="block mb-1 font-semibold">Paste Spotify Embed Code</label>
     <textarea
       v-model="spotifyEmbedCode"
@@ -9,7 +8,6 @@
       placeholder="Paste your Spotify embed iframe here"
     ></textarea>
 
-    <!-- Display embed preview -->
     <div v-if="spotifyEmbedCode" v-html="spotifyEmbedCode"></div>
   </div>
 </template>

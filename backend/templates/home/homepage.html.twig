@@ -2,87 +2,71 @@
 
 {% block body %}
 <div class="mx-auto max-w-screen-xl p-5 bg-gray-900 text-white">
-
-    {# Hero Section #}
-    <section
-      class="text-center p-10 bg-gradient-to-br from-indigo-900 to-gray-900 rounded-xl shadow-lg
-                 transform transition-transform duration-300 hover:scale-105 mb-10">
+    <section class="text-center p-10 bg-gradient-to-br from-indigo-900 to-gray-900 rounded-xl shadow-lg transform transition-transform duration-300 hover:scale-105 mb-10">
         <h2 class="text-4xl mb-2 font-bold">Have you made your own profile?</h2>
         <p class="text-xl mb-6">
             Create and customize your portfolio, share your experiences, and engage with others.
         </p>
         <a href="{{ path('create_portfolio') }}"
-           class="inline-block mt-5 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white
-                  rounded-full text-lg shadow-md transition-all duration-300 transform hover:-translate-y-1
-                  hover:from-purple-600 hover:to-indigo-500">
+           class="inline-block mt-5 px-6 py-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-full text-lg shadow-md transition-all duration-300 transform hover:-translate-y-1 hover:from-purple-600 hover:to-indigo-500">
             Start Building
         </a>
     </section>
 
-    {# Featured Users #}
     <div class="p-5 mt-10 rounded-lg shadow-lg bg-gray-800">
         <h2 class="text-2xl mb-5 text-center">Featured Users</h2>
 
-        {# 
-           A 2-column grid for user cards.
-           On very small screens, it’s 1 column (grid-cols-1).
-           On sm+ screens, it’s 2 columns (sm:grid-cols-2).
-         #}
-        <div
-          id="userList"
-          class="grid grid-cols-1 sm:grid-cols-2 gap-5"
-        >
-            {# Render the first batch of users from the controller #}
+        <div id="userList" class="grid grid-cols-1 sm:grid-cols-2 gap-5">
             {% for user in initialUsers %}
-              <div class="bg-gray-700 rounded-lg overflow-hidden shadow hover:shadow-xl transform hover:scale-105 transition duration-300">
-                <div class="p-4 flex items-center space-x-4">
-                    {% if user.profilePicture %}
-                      <img 
-                        src="/uploads/profilePictures{{ user.profilePicture }}" 
-                        alt="{{ user.username }}" 
-                        class="w-16 h-16 object-cover rounded-full"
-                      />
-                    {% else %}
-                      <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center">
-                          <span class="text-xl font-semibold">
-                            {{ user.username|first|upper }}
-                          </span>
-                      </div>
-                    {% endif %}
-                    <div>
-                        <p class="text-lg font-bold">{{ user.username }}</p>
-                        <p class="text-sm text-gray-300">ID: {{ user.id }}</p>
+              {% if user.portfolioId %}
+                <a href="{{ path('show_portfolio', { id: user.portfolioId }) }}" class="block">
+              {% else %}
+                <div class="block">
+              {% endif %}
+                  <div class="bg-gray-700 rounded-lg overflow-hidden shadow hover:shadow-xl transform hover:scale-105 transition duration-300">
+                    <div class="p-4 flex items-center space-x-4">
+                        {% if user.profilePicture %}
+                          <img 
+                            src="/uploads/profilePictures{{ user.profilePicture }}" 
+                            alt="{{ user.username }}" 
+                            class="w-16 h-16 object-cover rounded-full"
+                          />
+                        {% else %}
+                          <div class="w-16 h-16 bg-gray-500 rounded-full flex items-center justify-center">
+                              <span class="text-xl font-semibold">{{ user.username|first|upper }}</span>
+                          </div>
+                        {% endif %}
+                        <div>
+                            <p class="text-lg font-bold">{{ user.username }}</p>
+                            <p class="text-sm text-gray-300">ID: {{ user.id }}</p>
+                        </div>
                     </div>
+                  </div>
+              {% if user.portfolioId %}
+                </a>
+              {% else %}
                 </div>
-              </div>
+              {% endif %}
             {% endfor %}
         </div>
 
-        {# A "loading" indicator; hidden by default, shown while fetching more #}
-        <div
-          id="loadingIndicator"
-          class="flex justify-center items-center mt-4 hidden"
-        >
+        {# loading part #}
+        <div id="loadingIndicator" class="flex justify-center items-center mt-4 hidden">
           <span class="text-gray-300">Loading more users...</span>
         </div>
     </div>
 </div>
 
-{# Infinite scroll logic #}
 <script>
-  // The limit we used in the controller (ex: 9)
   const limit = {{ limit }};
-  // We'll load page=2 next (page 1 is already rendered)
   let currentPage = 2;
   let loading = false;
 
-  // On scroll, if near bottom => load next batch
   window.addEventListener('scroll', onScroll);
 
   function onScroll() {
     if (loading) return;
-    const triggerOffset = 300; // px from bottom
-
+    const triggerOffset = 300;
     if ((window.innerHeight + window.scrollY) >= (document.body.offsetHeight - triggerOffset)) {
       loadMoreUsers();
     }
@@ -90,20 +74,14 @@
 
   async function loadMoreUsers() {
     loading = true;
-
     const loadingEl = document.getElementById('loadingIndicator');
-    loadingEl.classList.remove('hidden'); // show the "Loading..." text
+    loadingEl.classList.remove('hidden');
 
     try {
       const response = await fetch(`/api/users?page=${currentPage}&limit=${limit}`);
-      if (!response.ok) {
-        throw new Error('Failed to load more users');
-      }
+      if (!response.ok) throw new Error('Failed to load more users');
       const newUsers = await response.json();
-
       appendUsers(newUsers);
-
-      // If fewer than 'limit' => no more data => remove scroll listener
       if (newUsers.length < limit) {
         window.removeEventListener('scroll', onScroll);
       } else {
@@ -113,7 +91,6 @@
       console.error(err);
       window.removeEventListener('scroll', onScroll);
     }
-
     loadingEl.classList.add('hidden');
     loading = false;
   }
@@ -121,8 +98,11 @@
   function appendUsers(users) {
     const userList = document.getElementById('userList');
 
-    users.forEach((u) => {
-      // Create the card
+    users.forEach(u => {
+      const anchor = document.createElement('a');
+      anchor.href = `/portfolio/${u.portfolioId}`;
+      anchor.className = "block";
+
       const card = document.createElement('div');
       card.className = "bg-gray-700 rounded-lg overflow-hidden shadow hover:shadow-xl transform hover:scale-105 transition duration-300";
 
@@ -156,9 +136,9 @@
 
       wrapper.appendChild(picEl);
       wrapper.appendChild(textDiv);
-
       card.appendChild(wrapper);
-      userList.appendChild(card);
+      anchor.appendChild(card);
+      userList.appendChild(anchor);
     });
   }
 </script>
