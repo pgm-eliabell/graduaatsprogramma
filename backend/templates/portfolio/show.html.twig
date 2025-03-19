@@ -1,7 +1,65 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div {{ vue_component('ShowComponents/ShowPortfolioPage', {
-    initialBlocks: blocksJson|raw
-}) }}></div>
-{% endblock body %}
+<h1>Portfolio #{{ portfolio.id }}</h1>
+
+{% if portfolio.portfolioComponents is empty %}
+  <p>No components found.</p>
+{% else %}
+  {% for component in portfolio.portfolioComponents %}
+    <div class="mb-6 p-4 border border-gray-600 rounded ">
+      <p><strong>Type:</strong> {{ component.componentType }}</p>
+
+      {% if component.componentType == 'hero_section' %}
+        {# We expect content to look like { "name": "...", "occupation": "...", "description": "...", ... } #}
+        <p><strong>Name:</strong> {{ component.content.name }}</p>
+        <p><strong>Occupation:</strong> {{ component.content.occupation }}</p>
+        <p><strong>Description:</strong> {{ component.content.description }}</p>
+
+        {% if component.content.profileImage is defined %}
+          <p>Profile Image: <img src="{{ component.content.profileImage }}" alt="Profile" style="width:100px; height:100px;" /></p>
+        {% endif %}
+        {% if component.content.backgroundImage is defined %}
+          <p>Background Image: <img src="{{ component.content.backgroundImage }}" alt="Background" style="width:200px; height:100px;" /></p>
+        {% endif %}
+
+      {% elseif component.componentType == 'gallery_card' %}
+        <h3>Gallery Card</h3>
+        {% if component.content.images is defined and component.content.images is iterable %}
+          <ul>
+            {% for filename in component.content.images %}
+              <li>
+                <img src="/uploads/gallery/{{ filename }}" alt="Gallery" style="width:100px; height:100px;" />
+              </li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+
+      {% elseif component.componentType == 'item_card' %}
+        <h3>Item Card</h3>
+        <p><strong>Title:</strong> {{ component.content.title }}</p>
+        <p><strong>Description:</strong> {{ component.content.description }}</p>
+
+      {% elseif component.componentType == 'social_links' %}
+        <h3>Social Links</h3>
+        <ul>
+          {% if component.content.twitter %}<li><a href="{{ component.content.twitter }}" target="_blank">Twitter</a></li>{% endif %}
+          {% if component.content.facebook %}<li><a href="{{ component.content.facebook }}" target="_blank">Facebook</a></li>{% endif %}
+          {% if component.content.instagram %}<li><a href="{{ component.content.instagram }}" target="_blank">Instagram</a></li>{% endif %}
+        </ul>
+
+      {% elseif component.componentType == 'video_embed' %}
+        <h3>Video Embed</h3>
+        {# If your embed_code is raw HTML, we can safely display it as HTML only if we trust it. #}
+        {% if component.content.embed_code is defined %}
+          <div>{{ component.content.embed_code|raw }}</div>
+        {% endif %}
+
+      {% else %}
+        {# Fallback if type is unknown #}
+        <pre>{{ component.content|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
+      {% endif %}
+    </div>
+  {% endfor %}
+{% endif %}
+{% endblock %}

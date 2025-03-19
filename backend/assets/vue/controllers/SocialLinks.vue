@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white p-4 border border-gray-300 rounded">
+  <div class="bg-gray-900 p-4 border border-gray-300 rounded">
     <h2 class="text-xl font-bold mb-2">Social Links</h2>
     <label class="block mb-1">Twitter:</label>
     <input 

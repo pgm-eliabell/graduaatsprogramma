@@ -59,22 +59,11 @@ class PortfolioController extends AbstractController
 
 
     #[Route('/portfolio/{id}', name: 'show_portfolio')]
-    public function viewPortfolio(int $id, PortfoliosRepository $portfoliosRepo): Response
+    public function showPortfolio(Portfolios $portfolio): Response
     {
-        $portfolio = $portfoliosRepo->find($id) ?? throw $this->createNotFoundException();
-    
-        // Build array of blocks
-        $blocks = [];
-        foreach ($portfolio->getPortfolioComponents() as $component) {
-            $blocks[] = [
-                'type' => $component->getComponentType(),
-                'content' => $component->getContent(),
-            ];
-        }
-    
+
         return $this->render('portfolio/show.html.twig', [
             'portfolio' => $portfolio,
-            'blocksJson' => json_encode($blocks), // This is a JSON string
         ]);
     }
 

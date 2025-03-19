@@ -4,6 +4,7 @@
       <p><strong>Title:</strong> {{ content.title }}</p>
       <p><strong>Description:</strong> {{ content.description }}</p>
     </div>
+    <p>thsi is the itemscard</p>
   </template>
   
   <script>
