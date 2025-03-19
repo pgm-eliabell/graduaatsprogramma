@@ -31,8 +31,9 @@
         </div>
         <div v-else class="p-4 rounded-lg bg-gray-50 shadow-sm">
           <component
-            :is="block.component"
-            :ref="'block_' + index"
+          :is="block.component"
+          :ref="'block_' + index"
+          :content="block.content" 
           />
         </div>
       </div>
@@ -73,9 +74,7 @@ import HeroSection from "./HeroSection.vue";
 import GalleryCard from "./GalleryCard.vue";
 import ItemCard from "./ItemCard.vue";
 import SocialLinks from "./SocialLinks.vue";
-import SpotifyEmbed from "./SpotifyEmbed.vue";
 import VideoEmbed from "./VideoEmbed.vue";
-import Test from "./Test.vue";
 
 export default {
   name: "CreatePortfolioPage",
@@ -86,15 +85,45 @@ export default {
       showComponentSelector: false,
       selectedBlockIndex: null,
       components: {
-        HeroSection,
-        GalleryCard,
-        ItemCard,
-        SocialLinks,
-        SpotifyEmbed,
-        VideoEmbed,
-        Test,
+        hero_section: HeroSection,
+        gallery_card: GalleryCard,
+        item_card: ItemCard,
+        social_links: SocialLinks,
+        video_embed: VideoEmbed,
       },
     };
+  },
+  mounted() {
+    // Fetch existing blocks from /api/portfolios/edit
+    fetch("/api/portfolios/edit")
+      .then((resp) => {
+        if (!resp.ok) throw new Error("Failed to load existing portfolio");
+        return resp.json();
+      })
+      .then((data) => {
+        // data.blocks => array of { id, type, content }
+        // data.visible => boolean
+        this.isVisible = data.visible || false;
+
+        data.blocks.forEach((blockData) => {
+          // blockData.type might be 'hero_section', 'video_embed', etc.
+          // We need to find the correct Vue component in this.components
+          const comp = this.components[blockData.type] || null;
+
+          this.blocks.push({
+            id: blockData.id,    // store the DB id
+            type: blockData.type,
+            component: comp,     // the actual Vue component
+            content: blockData.content,
+          });
+        });
+
+        // Remove the initial empty block if you prefer
+        // this.blocks.shift();
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   },
   methods: {
     selectComponent(index) {
@@ -102,52 +131,57 @@ export default {
       this.showComponentSelector = true;
     },
     addComponent(name) {
+      // name might be 'hero_section', 'video_embed', etc.
       this.blocks[this.selectedBlockIndex].component = this.components[name];
+      this.blocks[this.selectedBlockIndex].type = name;
       this.showComponentSelector = false;
       this.blocks.push({ component: null });
     },
     saveAllComponents() {
-  const blocksPayload = this.blocks
-    .filter((b) => b.component)
-    .map((b, index) => {
-      // Possibly the Vue ref is an array, so get the first item
-      const child = this.$refs[`block_${index}`]?.[0];
-      if (child) {
-        console.log("Component name (for block " + index + "):", child.$options?.name);
-      }
-      return {
-        type: child?.$options?.name || "UnknownComponent",
-        content: child?.getData ? child.getData() : {}
+      const blocksPayload = this.blocks
+        .filter((b) => b.component) // ignore placeholders
+        .map((b, index) => {
+          // Possibly the Vue ref is an array
+          const child = this.$refs[`block_${index}`]?.[0];
+          let type = b.type || child?.$options?.name || "UnknownComponent";
+
+          // Gather content from getData()
+          const content = child?.getData ? child.getData() : {};
+
+          return {
+            // If it had an existing DB id, send it
+            id: b.id || null, 
+            type,
+            content
+          };
+        });
+
+      const payload = {
+        blocks: blocksPayload,
+        layout_config: {}, 
+        visible: this.isVisible
       };
-    });
 
-  const payload = {
-    blocks: blocksPayload,
-    layout_config: {},
-    visible: this.isVisible
-  };
+      console.log("Sending payload:", JSON.stringify(payload, null, 2));
 
-  console.log("Sending payload:", JSON.stringify(payload, null, 2)); // i'll have to delete this later
-
-  fetch("/api/portfolios/save", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-  .then((resp) => {
-    if (!resp.ok) throw new Error("Failed to save");
-    return resp.json();
-  })
-  .then((data) => {
-    alert("All components saved!");
-    console.log("Saved response:", data);
-  })
-  .catch((error) => {
-    console.error(error);
-    alert("Error saving components");
-  });
-}
-
+      fetch("/api/portfolios/save", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+        .then((resp) => {
+          if (!resp.ok) throw new Error("Failed to save");
+          return resp.json();
+        })
+        .then((data) => {
+          alert("All components saved!");
+          console.log("Saved response:", data);
+        })
+        .catch((error) => {
+          console.error(error);
+          alert("Error saving components");
+        });
+    },
   },
 };
 </script>

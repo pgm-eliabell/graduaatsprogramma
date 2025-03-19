@@ -31,8 +31,7 @@
             <!-- Desktop nav links -->
             <div class="hidden md:flex space-x-4">
                 {% if app.user %}
-                
-                <a href="{{ path('show_portfolio', { id: app.user.id }) }}">
+                <a href="{{ path('show_portfolio', { id: app.user.id }) }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">
                     {{ app.user.username }}
                   </a>
                 <a href="{{ path('app_logout') }}" class="text-white hover:text-gray-300 px-3 py-2 rounded-md">Logout</a>

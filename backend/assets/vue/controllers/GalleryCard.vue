@@ -1,88 +1,79 @@
 <template>
-  <div class="w-full max-w-xl mx-auto bg-black text-white p-4 rounded">
-    <!-- Carousel -->
-    <div class="relative flex items-center justify-center h-64 border border-gray-700 rounded mb-4">
-      <button
-        v-if="currentIndex > 0"
-        @click="prevImage"
-        class="absolute left-2 text-xl bg-gray-800 px-2 py-1 rounded hover:bg-gray-700"
+  <div class="gallery-card p-4 border border-blue-500 rounded">
+    <h2 class="text-xl font-bold mb-2 text-blue-500">Gallery Card</h2>
+
+    <!-- Preview container (2-column grid) -->
+    <div class="mb-2 grid grid-cols-2 gap-2">
+      <div
+        v-for="(filename, index) in images"
+        :key="index"
+        class="overflow-hidden"
       >
-        ‹
-      </button>
-      <img
-        v-if="images.length"
-        :src="images[currentIndex]"
-        alt="Carousel Image"
-        class="max-h-full max-w-full object-contain"
-      />
-      <button
-        v-if="currentIndex < images.length - 1"
-        @click="nextImage"
-        class="absolute right-2 text-xl bg-gray-800 px-2 py-1 rounded hover:bg-gray-700"
-      >
-        ›
-      </button>
+        <img
+          :src="getImageUrl(filename)"
+          alt="Gallery Image"
+          class="object-cover w-full h-32 rounded"
+        />
+      </div>
     </div>
 
-    <div>
-      <button
-        class="flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded"
-        @click="triggerFileInput"
-      >
-        <span class="mr-2 text-2xl font-bold">+</span>
-        Add Images
-      </button>
-      <input
-        ref="fileInput"
-        type="file"
-        multiple
-        accept="image/*"
-        class="hidden"
-        @change="onImagesChange"
-      />
-    </div>
+    <!-- File input for multiple images -->
+    <input
+      type="file"
+      accept="image/*"
+      multiple
+      @change="onImageChange"
+      class="block text-blue-500"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: "GalleryCard",
+  name: "gallery_card",
+  props: {
+    content: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data() {
     return {
-      images: [],
-      currentIndex: 0,
+      // Use existing images if available
+      images: this.content.images || []
     };
   },
   methods: {
-    triggerFileInput() {
-      this.$refs.fileInput.click();
+    getImageUrl(filename) {
+      return `/uploads/gallery/${filename}`;
     },
-    onImagesChange(e) {
-      const files = Array.from(e.target.files || []);
-      // Keep logic to limit images to 30
-      if (files.length + this.images.length > 30) {
-        alert("You can upload a maximum of 30 images.");
-        return;
+    async onImageChange(e) {
+      const files = Array.from(e.target.files);
+      for (const file of files) {
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+          const response = await fetch("/api/uploads/gallery", {
+            method: "POST",
+            body: formData
+          });
+          if (!response.ok) {
+            throw new Error("Gallery image upload failed");
+          }
+          const data = await response.json();
+          this.images.push(data.filename);
+        } catch (err) {
+          console.error(err);
+          alert("Failed to upload gallery image");
+        }
       }
-      files.forEach((file) => {
-        const url = URL.createObjectURL(file);
-        this.images.push(url);
-      });
+      e.target.value = ""; // Clear so user can upload the same file again if needed
     },
-    nextImage() {
-      if (this.currentIndex < this.images.length - 1) {
-        this.currentIndex++;
-      }
-    },
-    prevImage() {
-      if (this.currentIndex > 0) {
-        this.currentIndex--;
-      }
-    },
-  },
+    getData() {
+      return {
+        images: this.images
+      };
+    }
+  }
 };
 </script>
-
-<style scoped>
-/* Customize if needed */
-</style>
