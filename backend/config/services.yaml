@@ -4,7 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-        hero_images_directory: '%kernel.project_dir%/public/uploads/hero'
+        hero_images_directory: '%kernel.project_dir%/public/uploads/heroImages'
         gallery_images_directory: '%kernel.project_dir%/public/uploads/gallery'
 
 

@@ -1,65 +1,81 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<h1>Portfolio #{{ portfolio.id }}</h1>
+<div class="flex justify-center items-center min-h-screen bg-gray-900">
+  <div class="w-[794px] h-[1123px] bg-transparent p-8 shadow-lg overflow-hidden">
+    <h1 class="text-4xl font-bold mb-6 text-center">Portfolio #{{ portfolio.id }}</h1>
 
-{% if portfolio.portfolioComponents is empty %}
-  <p>No components found.</p>
-{% else %}
-  {% for component in portfolio.portfolioComponents %}
-    <div class="mb-6 p-4 border border-gray-600 rounded ">
-      <p><strong>Type:</strong> {{ component.componentType }}</p>
-
-      {% if component.componentType == 'hero_section' %}
-        {# We expect content to look like { "name": "...", "occupation": "...", "description": "...", ... } #}
-        <p><strong>Name:</strong> {{ component.content.name }}</p>
-        <p><strong>Occupation:</strong> {{ component.content.occupation }}</p>
-        <p><strong>Description:</strong> {{ component.content.description }}</p>
-
-        {% if component.content.profileImage is defined %}
-          <p>Profile Image: <img src="{{ component.content.profileImage }}" alt="Profile" style="width:100px; height:100px;" /></p>
-        {% endif %}
-        {% if component.content.backgroundImage is defined %}
-          <p>Background Image: <img src="{{ component.content.backgroundImage }}" alt="Background" style="width:200px; height:100px;" /></p>
-        {% endif %}
-
-      {% elseif component.componentType == 'gallery_card' %}
-        <h3>Gallery Card</h3>
-        {% if component.content.images is defined and component.content.images is iterable %}
-          <ul>
-            {% for filename in component.content.images %}
-              <li>
-                <img src="/uploads/gallery/{{ filename }}" alt="Gallery" style="width:100px; height:100px;" />
-              </li>
-            {% endfor %}
-          </ul>
+    {% if portfolio.portfolioComponents is empty %}
+      <p class="text-gray-400 text-center">No components found.</p>
+    {% else %}
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% set hero_section = portfolio.portfolioComponents|filter(c => c.componentType == 'hero_section')|first %}
+        {% if hero_section %}
+          <div class="col-span-2 bg-gray-800 p-6 rounded-lg shadow-lg">
+            <h2 class="text-3xl font-bold text-indigo-300 mb-3">Hero Section</h2>
+            <p class="mb-1"><strong>Name:</strong> {{ hero_section.content.name }}</p>
+            <p class="mb-1"><strong>Occupation:</strong> {{ hero_section.content.occupation }}</p>
+            <p class="mb-3"><strong>Description:</strong> {{ hero_section.content.description }}</p>
+            {% if hero_section.content.profileImage %}
+              <img src="{{ hero_section.content.profileImage }}" alt="Profile" class="w-32 h-32 object-cover rounded border border-gray-600">
+            {% endif %}
+            {% if hero_section.content.backgroundImage %}
+              <img src="{{ hero_section.content.backgroundImage }}" alt="Background" class="w-64 h-32 object-cover rounded border border-gray-600">
+            {% endif %}
+          </div>
         {% endif %}
 
-      {% elseif component.componentType == 'item_card' %}
-        <h3>Item Card</h3>
-        <p><strong>Title:</strong> {{ component.content.title }}</p>
-        <p><strong>Description:</strong> {{ component.content.description }}</p>
+        {% set components = portfolio.portfolioComponents|filter(c => c.componentType != 'hero_section') %}
+        {% for component in components %}
+          <div class="p-6 border border-gray-700 rounded-lg bg-gray-800 shadow-lg">
+            <h3 class="text-2xl font-bold mb-3 text-indigo-300">
+              {% if component.componentType == 'gallery_card' %}Gallery Card
+              {% elseif component.componentType == 'item_card' %}Item Card
+              {% elseif component.componentType == 'social_links' %}Social Links
+              {% elseif component.componentType == 'video_embed' %}Video Embed
+              {% else %}Unknown Component{% endif %}
+            </h3>
 
-      {% elseif component.componentType == 'social_links' %}
-        <h3>Social Links</h3>
-        <ul>
-          {% if component.content.twitter %}<li><a href="{{ component.content.twitter }}" target="_blank">Twitter</a></li>{% endif %}
-          {% if component.content.facebook %}<li><a href="{{ component.content.facebook }}" target="_blank">Facebook</a></li>{% endif %}
-          {% if component.content.instagram %}<li><a href="{{ component.content.instagram }}" target="_blank">Instagram</a></li>{% endif %}
-        </ul>
-
-      {% elseif component.componentType == 'video_embed' %}
-        <h3>Video Embed</h3>
-        {# If your embed_code is raw HTML, we can safely display it as HTML only if we trust it. #}
-        {% if component.content.embed_code is defined %}
-          <div>{{ component.content.embed_code|raw }}</div>
-        {% endif %}
-
-      {% else %}
-        {# Fallback if type is unknown #}
-        <pre>{{ component.content|json_encode(constant('JSON_PRETTY_PRINT')) }}</pre>
-      {% endif %}
-    </div>
-  {% endfor %}
-{% endif %}
+            {% if component.componentType == 'gallery_card' %}
+              {% if component.content.images is defined and component.content.images is iterable %}
+                <div class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {% for filename in component.content.images %}
+                    <img src="/uploads/gallery/{{ filename }}" alt="Gallery" class="w-full h-32 object-cover rounded border border-gray-700">
+                  {% endfor %}
+                </div>
+              {% else %}
+                <p class="text-gray-400">No images found.</p>
+              {% endif %}
+            {% elseif component.componentType == 'item_card' %}
+              <p><strong>Title:</strong> {{ component.content.title }}</p>
+              <p><strong>Description:</strong> {{ component.content.description }}</p>
+            {% elseif component.componentType == 'social_links' %}
+              <ul class="list-disc pl-5 space-y-1">
+                {% if component.content.twitter %}<li><a href="{{ component.content.twitter }}" target="_blank" class="text-purple-400 hover:underline">Twitter</a></li>{% endif %}
+                {% if component.content.facebook %}<li><a href="{{ component.content.facebook }}" target="_blank" class="text-purple-400 hover:underline">Facebook</a></li>{% endif %}
+                {% if component.content.instagram %}<li><a href="{{ component.content.instagram }}" target="_blank" class="text-purple-400 hover:underline">Instagram</a></li>{% endif %}
+              </ul>
+              {% elseif component.componentType == 'video_embed' %}
+              {% if component.content.embed_code is defined and component.content.embed_code %}
+                <div class="relative w-full overflow-hidden rounded border border-gray-700" style="padding-bottom: 56.25%;">
+                  <div class="absolute inset-0">
+                    {{ component.content.embed_code|raw }}
+                  </div>
+                </div>
+              {% else %}
+                <p class="text-gray-400">No embed code found.</p>
+              {% endif %}            
+            {% else %}
+              <p class="text-red-500 font-semibold">Unknown component type</p>
+              <pre class="bg-gray-700 p-2 rounded">
+                {{ component.content|json_encode(constant('JSON_PRETTY_PRINT')) }}
+              </pre>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+  {{dump (components)}}
+</div>
 {% endblock %}

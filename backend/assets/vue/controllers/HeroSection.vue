@@ -1,101 +1,133 @@
 <template>
-  <div
-    class="relative w-full h-64 bg-gray-800 text-white p-6 rounded-lg flex items-center"
-    :style="backgroundImageStyle"
-  >
-    <!-- Left column: Profile Image -->
-    <div class="w-1/4 h-full flex items-center justify-center">
-      <label class="cursor-pointer">
-        <div class="w-24 h-24 bg-gray-700 overflow-hidden">
-          <img
-            v-if="profileImagePreview"
-            :src="profileImagePreview"
-            alt="Profile"
-            class="object-cover h-full w-full"
-          />
-        </div>
-        <input
-          type="file"
-          accept="image/*"
-          class="hidden"
-          @change="onProfileImageChange"
-        />
-      </label>
+  <div class="bg-gray-900 hero-section p-4 border border-gray-300 rounded">
+    <h2 class="text-xl font-bold mb-2 text-white">Hero Section</h2>
+
+    <!-- Profile Image Uploader -->
+    <label class="block mb-2 font-semibold text-white">Profile Image</label>
+    <input 
+      type="file" 
+      @change="onProfileImageChange" 
+      class="mb-4 w-full text-sm"
+    />
+    <!-- Display profile image preview if available -->
+    <div v-if="localContent.profileImage" class="mb-4">
+      <img 
+        :src="localContent.profileImage" 
+        alt="Profile Preview" 
+        class="border border-gray-400 w-32 h-32 object-cover rounded"
+      />
     </div>
 
-    <!-- Right column: Name, Occupation, Description -->
-    <div class="w-3/4 pl-6">
-      <label class="block mb-1">Name</label>
-      <input v-model="name" class="w-full mb-2 p-2 bg-gray-700 rounded" />
-
-      <label class="block mb-1">Occupation</label>
-      <input v-model="occupation" class="w-full mb-2 p-2 bg-gray-700 rounded" />
-
-      <label class="block mb-1">Description</label>
-      <textarea
-        v-model="description"
-        rows="2"
-        class="w-full p-2 bg-gray-700 rounded"
-        style="resize: none;"
-      ></textarea>
+    <!-- Background Image Uploader -->
+    <label class="block mb-2 font-semibold text-white">Background Image</label>
+    <input 
+      type="file" 
+      @change="onBackgroundImageChange" 
+      class="mb-4 w-full text-sm"
+    />
+    <!-- Display background image preview if available -->
+    <div v-if="localContent.backgroundImage" class="mb-4">
+      <img 
+        :src="localContent.backgroundImage" 
+        alt="Background Preview" 
+        class="border border-gray-400 w-64 h-32 object-cover rounded"
+      />
     </div>
 
-    <!-- Background Image -->
-    <label
-      class="absolute top-2 right-2 bg-black bg-opacity-50 px-3 py-2 rounded cursor-pointer"
-    >
-      Change Background
-      <input type="file" accept="image/*" class="hidden" @change="onBackgroundImageChange" />
-    </label>
+    <!-- Name, Occupation, Description fields -->
+    <label class="block mb-1 text-white">Name</label>
+    <input 
+      v-model="localContent.name" 
+      class="border p-2 w-full mb-2" 
+      placeholder="Enter your name"
+    />
+
+    <label class="block mb-1 text-white">Occupation</label>
+    <input 
+      v-model="localContent.occupation" 
+      class="border p-2 w-full mb-2"
+      placeholder="Your occupation"
+    />
+
+    <label class="block mb-1 text-white">Description</label>
+    <textarea
+      v-model="localContent.description"
+      class="border p-2 w-full"
+      rows="3"
+      placeholder="Enter description here"
+    ></textarea>
   </div>
 </template>
 
 <script>
 export default {
-  name: "hero_section",
+  name: "HeroSection",
+  props: {
+    // Expect an object from the parent; if not provided, default to an empty object.
+    content: {
+      type: Object,
+      default: () => ({})
+    }
+  },
   data() {
     return {
-      name: "",
-      occupation: "",
-      description: "",
-      profileImageFile: null,
-      profileImagePreview: null,
-      backgroundImageFile: null,
-      backgroundImagePreview: null,
+      // Create a local copy so we can mutate it.
+      localContent: { ...this.content }
     };
   },
-  computed: {
-    backgroundImageStyle() {
-      if (this.backgroundImagePreview) {
-        return `
-          background-image: url('${this.backgroundImagePreview}');
-          background-size: cover;
-          background-position: center;
-        `;
-      }
-      return "";
-    },
-  },
   methods: {
-    onProfileImageChange(e) {
-      this.profileImageFile = e.target.files[0];
-      this.profileImagePreview = URL.createObjectURL(this.profileImageFile);
-    },
-    onBackgroundImageChange(e) {
-      this.backgroundImageFile = e.target.files[0];
-      this.backgroundImagePreview = URL.createObjectURL(this.backgroundImageFile);
-    },
+    async onProfileImageChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const formData = new FormData();
+      formData.append("file", file);
 
+      try {
+        const response = await fetch("/api/uploads/hero", {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          console.error("Upload failed:", await response.text());
+          return;
+        }
+        const result = await response.json();
+        // Save the final URL into localContent (adjust the folder if needed)
+        this.localContent.profileImage = "/uploads/heroImages/" + result.filename;
+      } catch (err) {
+        console.error("Profile image upload error:", err);
+      }
+    },
+    async onBackgroundImageChange(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      
+      const formData = new FormData();
+      formData.append("file", file);
 
+      try {
+        const response = await fetch("/api/uploads/hero", {
+          method: "POST",
+          body: formData,
+        });
+        if (!response.ok) {
+          console.error("Upload failed:", await response.text());
+          return;
+        }
+        const result = await response.json();
+        // Save the final URL into localContent
+        this.localContent.backgroundImage = "/uploads/heroImages/" + result.filename;
+      } catch (err) {
+        console.error("Background image upload error:", err);
+      }
+    },
+    /**
+     * Returns the local data that will be posted to the backend.
+     */
     getData() {
-      return {
-        name: this.name,
-        occupation: this.occupation,
-        description: this.description,
-        profileImage: this.profileImagePreview || null,
-        backgroundImage: this.backgroundImagePreview || null,
-      };
-    },
-  },
+      return this.localContent;
+    }
+  }
 };
 </script>
