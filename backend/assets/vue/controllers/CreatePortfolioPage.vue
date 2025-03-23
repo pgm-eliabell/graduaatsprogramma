@@ -1,5 +1,5 @@
 <template>
-  <div class="page-builder p-8 bg-gray-100 min-h-screen">
+  <div class="page-builder p-8 bg-gray-300 min-h-screen">
     <h2 class="text-4xl font-bold mb-8 text-center text-gray-900">
       Craft Your Own Page
     </h2>
