@@ -1,10 +1,12 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="flex justify-center items-center min-h-screen bg-gray-900">
-  <div class="w-[794px] h-[1123px] bg-transparent p-8 shadow-lg overflow-hidden">
-    <h1 class="text-4xl font-bold mb-6 text-center">Portfolio #{{ portfolio.id }}</h1>
-
+<div class="flex justify-center items-center min-h-screen bg-gray-900 px-4">
+  
+  <div class="max-w-6xl w-full bg-transparent p-6 md:p-8 shadow-lg overflow-hidden">
+    <button onclick="window.print()" class="bg-blue-600 text-white px-5 py-2 rounded my-4 hover:bg-blue-500">
+      Print to PDF
+    </button>
     {% if portfolio.portfolioComponents is empty %}
       <p class="text-gray-400 text-center">No components found.</p>
     {% else %}
@@ -22,46 +24,38 @@
         {% set occupation = hero_section.content.occupation ?? '' %}
         {% set description = hero_section.content.description ?? '' %}
         {% set ctaLabel = hero_section.content.ctaLabel ?? '' %}
-      
+
         {% if bgImage %}
           {% set inlineStyle = "background: url('/uploads/heroImages/" ~ bgImage ~ "') center/cover no-repeat;" %}
         {% else %}
           {% set inlineStyle = "background-color: " ~ bgColor ~ ";" %}
         {% endif %}
-      
-        <div class="col-span-2 p-8 flex items-center justify-between shadow-lg"
+
+        <div class="col-span-2 p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between shadow-lg"
              style="{{ inlineStyle }} color: {{ textColor }}; border-radius: {{ radius }}px;">
-          
-          <!-- Left: Profile Image -->
-          <div class="flex flex-col items-center mr-8">
-            <div class="w-40 h-40 overflow-hidden rounded-full border-4 border-white shadow-lg">
+
+          <!-- Profile Image -->
+          <div class="flex flex-col items-center sm:items-start sm:mr-8 mb-4 sm:mb-0">
+            <div class="w-32 h-32 sm:w-40 sm:h-40 overflow-hidden rounded-full border-4 border-white shadow-lg">
               {% if profile %}
-                <img src="/uploads/heroImages/{{ profile }}" alt="Profile"
-                     class="w-full h-full object-cover">
+                <img src="/uploads/heroImages/{{ profile }}" alt="Profile" class="w-full h-full object-cover">
               {% else %}
-                <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-700">
-                  No Image
-                </div>
+                <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-700">No Image</div>
               {% endif %}
             </div>
           </div>
-      
-          <!-- Right: Text Content -->
-          <div class="flex-1">
-            <h2 class="text-3xl font-bold mb-2">Hello, my name is {{ name }}</h2>
-            <p class="text-xl font-semibold mb-2">{{ occupation }}</p>
+
+          <!-- Text Content -->
+          <div class="text-center sm:text-left">
+            <h2 class="text-2xl sm:text-3xl font-bold mb-2">Hello, my name is {{ name }}</h2>
+            <p class="text-lg sm:text-xl font-semibold mb-2">{{ occupation }}</p>
             <p class="max-w-md leading-relaxed mb-4">{{ description }}</p>
-      
             {% if ctaLabel %}
-              <button class="bg-pink-600 text-white px-5 py-2 rounded hover:bg-pink-500">
-                {{ ctaLabel }}
-              </button>
+              <button class="bg-pink-600 text-white px-5 py-2 rounded hover:bg-pink-500">{{ ctaLabel }}</button>
             {% endif %}
           </div>
         </div>
-      {% endif %}
-      
-
+        {% endif %}
 
         {% set components = portfolio.portfolioComponents|filter(c => c.componentType != 'hero_section') %}
         {% for component in components %}
@@ -84,16 +78,19 @@
               {% else %}
                 <p class="text-gray-400">No images found.</p>
               {% endif %}
+
             {% elseif component.componentType == 'item_card' %}
               <p><strong>Title:</strong> {{ component.content.title }}</p>
               <p><strong>Description:</strong> {{ component.content.description }}</p>
+
             {% elseif component.componentType == 'social_links' %}
               <ul class="list-disc pl-5 space-y-1">
                 {% if component.content.twitter %}<li><a href="{{ component.content.twitter }}" target="_blank" class="text-purple-400 hover:underline">Twitter</a></li>{% endif %}
                 {% if component.content.facebook %}<li><a href="{{ component.content.facebook }}" target="_blank" class="text-purple-400 hover:underline">Facebook</a></li>{% endif %}
                 {% if component.content.instagram %}<li><a href="{{ component.content.instagram }}" target="_blank" class="text-purple-400 hover:underline">Instagram</a></li>{% endif %}
               </ul>
-              {% elseif component.componentType == 'video_embed' %}
+
+            {% elseif component.componentType == 'video_embed' %}
               {% if component.content.embed_code is defined and component.content.embed_code %}
                 <div class="relative w-full overflow-hidden rounded border border-gray-700" style="padding-bottom: 56.25%;">
                   <div class="absolute inset-0">
@@ -102,7 +99,8 @@
                 </div>
               {% else %}
                 <p class="text-gray-400">No embed code found.</p>
-              {% endif %}            
+              {% endif %}
+
             {% else %}
               <p class="text-red-500 font-semibold">Unknown component type</p>
               <pre class="bg-gray-700 p-2 rounded">
@@ -114,6 +112,29 @@
       </div>
     {% endif %}
   </div>
-  {{dump (components)}}
 </div>
+
+<style>
+  @page {
+  size: A4; /* or "letter", etc. */
+  margin: 0;
+}
+
+@media print {
+  body, .bg-gray-900 {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+    background-color: #1f2937 !important;
+    color: #ffffff !important;
+    padding-top: 0px !important;
+  }
+  html, body {
+    width: 210mm; /* A4 width */
+    height: 297mm; /* A4 height */
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden;
+  }
+}
+</style>
 {% endblock %}
