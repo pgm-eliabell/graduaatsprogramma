@@ -1,6 +1,6 @@
 <template>
   <div class="gallery-card p-4 border border-blue-500 rounded">
-    <h2 class="text-xl font-bold mb-2 text-blue-500">Gallery Card</h2>
+    <h2 class="text-xl font-bold mb-2 text-blue-500 bg-blue-600">Gallery Card</h2>
 
     <!-- Preview container (2-column grid) -->
     <div class="mb-2 grid grid-cols-2 gap-2">
