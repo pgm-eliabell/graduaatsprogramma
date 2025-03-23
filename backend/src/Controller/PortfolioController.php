@@ -51,22 +51,29 @@ class PortfolioController extends AbstractController
         }
 
         return $this->json([
+            'portfolio_id' => $portfolio->getId(),
+            'name' => $portfolio->getName() ?? '',
             'blocks' => $blocks,
             'layout_config' => $portfolio->getLayoutConfig() ?? [],
             'visible' => $portfolio->isVisible(),
         ]);
     }
 
-
+    /**
+     * Show a portfolio by ID (the public or user-facing page).
+     */
     #[Route('/portfolio/{id}', name: 'show_portfolio')]
     public function showPortfolio(Portfolios $portfolio): Response
     {
-
         return $this->render('portfolio/show.html.twig', [
             'portfolio' => $portfolio,
         ]);
     }
 
+    /**
+     * Bulk save route: creates or updates the user's entire set of components in one go.
+     * - Expects JSON with "blocks" and "layout_config".
+     */
     #[Route('/api/portfolios/save', name: 'portfolio_save', methods: ['POST'])]
     public function saveComponents(
         Request $request,
@@ -82,6 +89,7 @@ class PortfolioController extends AbstractController
         // Find or create the user's portfolio
         $portfolio = $portfoliosRepository->findOneBy(['user' => $user])
             ?? (new Portfolios())->setUser($user)->setVisible(true)->setViews(0);
+
         $em->persist($portfolio);
 
         $data = json_decode($request->getContent(), true) ?? [];
@@ -92,7 +100,6 @@ class PortfolioController extends AbstractController
 
         foreach ($blocks as $block) {
             $componentId = $block['id'] ?? null;
-            $type = $block['type'] ?? 'generic';
 
             $component = null;
             if ($componentId) {
@@ -125,13 +132,123 @@ class PortfolioController extends AbstractController
         return $this->json([
             'success' => true,
             'message' => 'Portfolio updated.',
+            'portfolio_id' => $portfolio->getId(),
             'updatedIds' => $updatedIds,
         ]);
     }
 
-    // ------------------------------------------------------------------------------------
-    // CREATE HELPER
-    // ------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------------
+    // NEW ROUTE #1: Edit an existing Portfolio (rename, toggle visibility, etc.)
+    // ------------------------------------------------------------------------------
+    #[Route('/api/portfolios/{id}/edit', name: 'portfolio_edit_existing', methods: ['PUT','PATCH'])]
+    public function editExistingPortfolio(
+        Portfolios $portfolio,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        // Ensure user is owner
+        $user = $this->getUser();
+        if (!$user || $portfolio->getUser()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Parse the JSON payload
+        $data = json_decode($request->getContent(), true);
+
+        // Example: we only update "name" and "visible"
+        if (isset($data['name'])) {
+            $portfolio->setName($data['name']);
+        }
+        if (isset($data['visible'])) {
+            $portfolio->setVisible((bool) $data['visible']);
+        }
+
+        $portfolio->setUpdatedAt(new \DateTimeImmutable());
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Portfolio updated.',
+            'id' => $portfolio->getId(),
+        ]);
+    }
+
+    // ------------------------------------------------------------------------------
+    // NEW ROUTE #2: Delete the entire Portfolio
+    // ------------------------------------------------------------------------------
+    #[Route('/api/portfolios/{id}/delete', name: 'portfolio_delete', methods: ['DELETE'])]
+    public function deletePortfolio(Portfolios $portfolio, EntityManagerInterface $em): Response
+    {
+        // Check ownership
+        $user = $this->getUser();
+        if (!$user || $portfolio->getUser()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Remove the portfolio (and Cascade will remove its components if configured, or do it manually)
+        $em->remove($portfolio);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Portfolio deleted.',
+        ]);
+    }
+
+    // ------------------------------------------------------------------------------
+    // NEW ROUTE #3: Edit a single component (by ID)
+    // ------------------------------------------------------------------------------
+    #[Route('/api/components/{id}/edit', name: 'portfolio_component_edit', methods: ['PUT','PATCH'])]
+    public function editSingleComponent(
+        PortfolioComponents $component,
+        Request $request,
+        EntityManagerInterface $em
+    ): Response {
+        // Check user owns it
+        $user = $this->getUser();
+        if (!$user || $component->getPortfolioId()->getUser()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $data = json_decode($request->getContent(), true);
+        // e.g. "type" => "hero_section", "content" => { ... }
+        $this->updateComponentByType($component, $data);
+
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Component updated.',
+            'component_id' => $component->getId(),
+        ]);
+    }
+
+    // ------------------------------------------------------------------------------
+    // NEW ROUTE #4: Delete a single component
+    // ------------------------------------------------------------------------------
+    #[Route('/api/components/{id}/delete', name: 'portfolio_component_delete', methods: ['DELETE'])]
+    public function deleteSingleComponent(
+        PortfolioComponents $component,
+        EntityManagerInterface $em
+    ): Response {
+        // Ensure user is owner
+        $user = $this->getUser();
+        if (!$user || $component->getPortfolioId()->getUser()->getId() !== $user->getId()) {
+            return $this->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $em->remove($component);
+        $em->flush();
+
+        return $this->json([
+            'success' => true,
+            'message' => 'Component deleted.',
+        ]);
+    }
+
+    // ------------------------------------------------------------------------
+    // CREATE HELPER (already in your code)
+    // ------------------------------------------------------------------------
     private function createComponentByType(array $block, Portfolios $portfolio): PortfolioComponents
     {
         $type = $block['type'] ?? 'generic';
@@ -157,7 +274,6 @@ class PortfolioController extends AbstractController
         $c->setContent($block['content'] ?? []);
         return $c;
     }
-
     private function makeVideoEmbed(PortfolioComponents $c, array $block): PortfolioComponents
     {
         $c->setComponentType('video_embed');
@@ -166,28 +282,24 @@ class PortfolioController extends AbstractController
         ]);
         return $c;
     }
-
     private function makeSocialLinks(PortfolioComponents $c, array $block): PortfolioComponents
     {
         $c->setComponentType('social_links');
         $c->setContent($block['content'] ?? []);
         return $c;
     }
-
     private function makeGalleryCard(PortfolioComponents $c, array $block): PortfolioComponents
     {
         $c->setComponentType('gallery_card');
         $c->setContent($block['content'] ?? []);
         return $c;
     }
-
     private function makeItemCard(PortfolioComponents $c, array $block): PortfolioComponents
     {
         $c->setComponentType('item_card');
         $c->setContent($block['content'] ?? []);
         return $c;
     }
-
     private function makeGeneric(PortfolioComponents $c, array $block): PortfolioComponents
     {
         $c->setComponentType($block['type'] ?? 'generic');
@@ -195,9 +307,9 @@ class PortfolioController extends AbstractController
         return $c;
     }
 
-    // ------------------------------------------------------------------------------------
-    // UPDATE HELPER
-    // ------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------------
+    // UPDATE HELPER (already in your code)
+    // ------------------------------------------------------------------------
     private function updateComponentByType(PortfolioComponents $component, array $block): void
     {
         $component->setUpdatedAt(new \DateTimeImmutable());
@@ -219,21 +331,18 @@ class PortfolioController extends AbstractController
         $new = $block['content'] ?? [];
         $c->setContent(array_merge($old, $new));
     }
-
     private function updateVideoEmbed(PortfolioComponents $c, array $block): void
     {
         $content = $c->getContent() ?? [];
         $content['embed_code'] = $block['content']['embed_code'] ?? $content['embed_code'] ?? '';
         $c->setContent($content);
     }
-
     private function updateSocialLinks(PortfolioComponents $c, array $block): void
     {
         $old = $c->getContent() ?? [];
         $new = $block['content'] ?? [];
         $c->setContent(array_merge($old, $new));
     }
-
     private function updateGalleryCard(PortfolioComponents $c, array $block): void
     {
         $old = $c->getContent() ?? [];
@@ -243,14 +352,12 @@ class PortfolioController extends AbstractController
             $c->setContent($merged);
         }
     }
-
     private function updateItemCard(PortfolioComponents $c, array $block): void
     {
         $old = $c->getContent() ?? [];
         $new = $block['content'] ?? [];
         $c->setContent(array_merge($old, $new));
     }
-
     private function updateGeneric(PortfolioComponents $c, array $block): void
     {
         $old = $c->getContent() ?? [];
