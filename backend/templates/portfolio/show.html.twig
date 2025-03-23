@@ -75,8 +75,10 @@
             </div>
 
             {% elseif component.componentType == 'video_embed' %}
-            <div class="rounded border border-gray-700 overflow-hidden max-w-full max-h-80 aspect-video ">
-              {{ component.content.embed_code|raw }}
+            <div class=" border-gray-700 overflow-hidden w-full aspect-video bg-black">
+              <div class="w-full h-full [position:relative] [padding-bottom:56.25%]">
+                  {{ component.content.embed_code|raw }}
+              </div>
             </div>
 
             {% else %}

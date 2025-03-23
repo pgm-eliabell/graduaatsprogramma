@@ -6,16 +6,17 @@
 
 - **Front-end:** Vue.js (Version 3)
 - **Back-end:** [Symfony](https://symfony.com/)
-- **Database:** MariaDB
+- **Database:** PostgreSQL (started with mariaDB)
 
 ## How to Use the Project
 
 ### Prerequisites
-
+PostgreSQL: symfony focuses very hard on postgreSQL therefore a lot of features that symfony "depends" on will be way harder to use with other database server types. 
 Ensure you have the following tools installed and set up on your machine:
 
 - **DDEV**: A Docker-based development environment.
 - **Docker**: Containerization platform.
+- **SymfonyFlex** a package helper that installs packages that are needed for other Symfony packages. Without it you will be searching alot on fixed and working packages for simple tasks.
 
 ### Setup Instructions
 
@@ -47,5 +48,5 @@ Ensure you have the following tools installed and set up on your machine:
 
 ### Additional Notes
 
-- **Database Configuration**: Ensure your MariaDB database is configured correctly in your Symfony `.env` file.
+- **Database Configuration**: Ensure your PostgreSQL database is configured correctly in your Symfony `.env` file.
 - **Environment Variables**: Check and configure any necessary environment variables in the `.env` file for both Symfony and Vue.js.

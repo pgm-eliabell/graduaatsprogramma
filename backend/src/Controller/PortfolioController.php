@@ -19,6 +19,11 @@ class PortfolioController extends AbstractController
     #[Route('/create-portfolio', name: 'create_portfolio')]
     public function createPortfolio(): Response
     {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'You need to log in to create a portfolio.');
+            return $this->redirectToRoute('app_login');
+        }
         return $this->render('portfolio/create.html.twig');
     }
 
